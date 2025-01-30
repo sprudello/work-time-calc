@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Night Shift Wage Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 5px; }
+        .input-group { margin: 10px 0; }
+        label { display: inline-block; width: 150px; }
+        button { margin: 5px; padding: 5px 10px; }
+        .days-container { display: flex; gap: 10px; margin: 10px 0; }
+    </style>
+    <script src="main.js"></script>
+</head>
+<body>
+    <div class="section">
+        <h2>Hourly Wage</h2>
+        <div class="input-group">
+            <label>Base Hourly Wage ($):</label>
+            <input type="number" id="hourlyWage" step="0.01" value="15">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Wage Boosters</h2>
+        <button onclick="addBooster()">Add Booster</button>
+        <div id="boostersContainer"></div>
+    </div>
+
+    <div class="section">
+        <h2>Work Time Entries</h2>
+        <button onclick="addTimeEntry()">Add Time Entry</button>
+        <div id="timeEntriesContainer"></div>
+    </div>
+
+    <div class="section">
+        <button onclick="calculateWage()">Calculate Total Wage</button>
+        <h3>Results:</h3>
+        <div id="results"></div>
+    </div>
+
+    <template id="boosterTemplate">
+        <div class="booster">
+            <div class="input-group">
+                <label>Percentage (%):</label>
+                <input type="number" class="booster-percent" step="0.1" value="10">
+            </div>
+            <div class="days-container">
+                <label><input type="checkbox" class="day" value="0">Sun</label>
+                <label><input type="checkbox" class="day" value="1">Mon</label>
+                <label><input type="checkbox" class="day" value="2">Tue</label>
+                <label><input type="checkbox" class="day" value="3">Wed</label>
+                <label><input type="checkbox" class="day" value="4">Thu</label>
+                <label><input type="checkbox" class="day" value="5">Fri</label>
+                <label><input type="checkbox" class="day" value="6">Sat</label>
+            </div>
+            <div class="input-group">
+                <label>Active Time:</label>
+                <input type="time" class="start-time" value="22:00">
+                to
+                <input type="time" class="end-time" value="06:00">
+            </div>
+            <button onclick="this.parentElement.remove()">Remove</button>
+        </div>
+    </template>
+
+    <template id="timeEntryTemplate">
+        <div class="time-entry">
+            <div class="input-group">
+                <label>Date:</label>
+                <input type="date" class="entry-date">
+            </div>
+            <div class="input-group">
+                <label>Start Time:</label>
+                <input type="time" class="start-time" value="22:00">
+            </div>
+            <div class="input-group">
+                <label>End Time:</label>
+                <input type="time" class="end-time" value="06:00">
+            </div>
+            <button onclick="this.parentElement.remove()">Remove</button>
+        </div>
+    </template>
+
+    
+</body>
+</html>
