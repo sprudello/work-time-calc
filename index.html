@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Night Shift Wage Calculator</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .section { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 5px; }
-        .input-group { margin: 10px 0; }
-        label { display: inline-block; width: 150px; }
-        button { margin: 5px; padding: 5px 10px; }
-        .days-container { display: flex; gap: 10px; margin: 10px 0; }
-    </style>
-    <script src="main.js"></script>
+    <title>Wage Calculator</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="section">
@@ -29,16 +21,27 @@
 
     <div class="section">
         <h2>Work Time Entries</h2>
-        <button onclick="addTimeEntry()">Add Time Entry</button>
-        <div id="timeEntriesContainer"></div>
+        <button onclick="clearAllData()" style="background-color: #ff4444; color: white;">Clear All Work Entries</button>
+        <div class="calendar">
+            <div class="calendar-header">
+                <button class="nav-button" onclick="calendar.prevMonth()">←</button>
+                <h3 id="currentMonth"></h3>
+                <button class="nav-button" onclick="calendar.nextMonth()">→</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
     </div>
 
     <div class="section">
         <button onclick="calculateWage()">Calculate Total Wage</button>
+        <button onclick="calculateWageForCurrentMonth()">Calculate Wage (Current Month)</button>
+        <button onclick="exportCSV()">Export CSV (Current Month)</button>
+        
         <h3>Results:</h3>
         <div id="results"></div>
     </div>
 
+    <!-- Template for boosters -->
     <template id="boosterTemplate">
         <div class="booster">
             <div class="input-group">
@@ -64,24 +67,19 @@
         </div>
     </template>
 
-    <template id="timeEntryTemplate">
-        <div class="time-entry">
-            <div class="input-group">
-                <label>Date:</label>
-                <input type="date" class="entry-date">
-            </div>
-            <div class="input-group">
-                <label>Start Time:</label>
-                <input type="time" class="start-time" value="22:00">
-            </div>
-            <div class="input-group">
-                <label>End Time:</label>
-                <input type="time" class="end-time" value="06:00">
-            </div>
-            <button onclick="this.parentElement.remove()">Remove</button>
+    <div id="timeEntryModal" class="time-entry-modal" style="display: none;">
+        <h3>Add Work Time for <span id="modalDate"></span></h3>
+        <div class="input-group">
+            <label>Start Time:</label>
+            <input type="time" id="modalStartTime" value="19:00" required>
         </div>
-    </template>
-
-    
+        <div class="input-group">
+            <label>End Time:</label>
+            <input type="time" id="modalEndTime" value="05:00" required>
+        </div>
+        <button onclick="calendar.saveEntry()">Save</button>
+        <button onclick="calendar.closeModal()">Cancel</button>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>
