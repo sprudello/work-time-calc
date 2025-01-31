@@ -111,6 +111,7 @@ document.body.addEventListener('click', function(e) {
 
 
 function calculateWage() {
+    saveData();
     try{
     const hourlyWage = parseFloat(document.getElementById('hourlyWage').value);
     const boosters = Array.from(document.getElementsByClassName('booster')).map(booster => ({
@@ -164,9 +165,9 @@ function calculateWage() {
     const results = document.getElementById('results');
     results.innerHTML = `
         <p>Total Hours: ${totalHours.toFixed(2)}</p>
-        <p>Base Wage: $${(hourlyWage * totalHours).toFixed(2)}</p>
+        <p>Base Wage: €${(hourlyWage * totalHours).toFixed(2)}</p>
         <p>Boosted Amount: $${(totalWage - hourlyWage * totalHours).toFixed(2)}</p>
-        <h4>Total Wage: $${totalWage.toFixed(2)}</h4>
+        <h4>Total Wage: €${totalWage.toFixed(2)}</h4>
         <p>Boosts Applied: ${boostDetails.map(d => `${d.percent}% on ${d.hours}h`).join(', ')}</p>
     `;
     } 
