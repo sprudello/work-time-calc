@@ -1,4 +1,19 @@
-// Cookie handling functions
+// Update the DOMContentLoaded listener
+document.addEventListener('DOMContentLoaded', () => {
+    // Load existing data
+    loadData();
+    
+    // Set up autosave
+    document.getElementById('hourlyWage').addEventListener('input', saveData);
+    document.getElementById('boostersContainer').addEventListener('input', saveData);
+    document.getElementById('timeEntriesContainer').addEventListener('input', saveData);
+    
+    // Add periodic saving as extra protection
+    setInterval(saveData, 5000); // Save every 5 seconds
+});
+
+
+// Storage functions (replace cookie code with this)
 function saveData() {
     const data = {
         hourlyWage: document.getElementById('hourlyWage').value,
@@ -15,18 +30,19 @@ function saveData() {
         }))
     };
     
-    const json = JSON.stringify(data);
-    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `shiftData=${encodeURIComponent(json)}; expires=${expires}; path=/`;
+    localStorage.setItem('shiftData', JSON.stringify(data));
 }
 
 function loadData() {
-    const cookie = document.cookie.split('; ').find(row => row.startsWith('shiftData='));
-    if (!cookie) return;
+    const savedData = localStorage.getItem('shiftData');
+    if (!savedData) return;
     
     try {
-        const json = decodeURIComponent(cookie.split('=')[1]);
-        const data = JSON.parse(json);
+        const data = JSON.parse(savedData);
+
+        // Clear existing entries
+        document.getElementById('boostersContainer').innerHTML = '';
+        document.getElementById('timeEntriesContainer').innerHTML = '';
 
         // Load hourly wage
         document.getElementById('hourlyWage').value = data.hourlyWage || 15;
@@ -62,6 +78,7 @@ function loadData() {
     }
 }
 
+
 // Modified functions to auto-save
 function addBooster() {
     const template = document.getElementById('boosterTemplate');
@@ -94,6 +111,7 @@ document.body.addEventListener('click', function(e) {
 
 
 function calculateWage() {
+    try{
     const hourlyWage = parseFloat(document.getElementById('hourlyWage').value);
     const boosters = Array.from(document.getElementsByClassName('booster')).map(booster => ({
         percent: parseFloat(booster.querySelector('.booster-percent').value),
@@ -140,6 +158,7 @@ function calculateWage() {
         });
 
         totalWage += hourlyWage * duration + hourlyWage * boostMultiplier;
+        
     });
 
     const results = document.getElementById('results');
@@ -150,6 +169,13 @@ function calculateWage() {
         <h4>Total Wage: $${totalWage.toFixed(2)}</h4>
         <p>Boosts Applied: ${boostDetails.map(d => `${d.percent}% on ${d.hours}h`).join(', ')}</p>
     `;
+    } 
+    catch (error) {
+    console.error('Calculation error:', error);
+    document.getElementById('results').innerHTML = `
+        <p style="color: red">Error in calculation: ${error.message}</p>
+    `;
+}
 }
 function calculateOverlap(workStart, workEnd, booster) {
     let totalHours = 0;
