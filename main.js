@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Periodic saving (every 5 seconds)
     setInterval(saveData, 5000);
+
+    // CSV Import: Add event listener for the hidden file input
+    const csvFileInput = document.getElementById('csvFileInput');
+    csvFileInput.addEventListener('change', handleCSVImport);
 });
 
 // =======================
@@ -93,6 +97,60 @@ function clearAllData() {
     // Reload boosters to ensure UI sync
     loadData();
 }
+
+// =======================
+// CSV Import Functions
+// =======================
+
+// Called when the file input changes (i.e. a file is selected)
+function handleCSVImport(event) {
+    clearAllData();
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csvText = e.target.result;
+        importCSV(csvText);
+    };
+    reader.readAsText(file);
+}
+
+function importCSV(csvText) {
+    // Split text into non-empty lines (handles both Windows and Unix newlines)
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+
+    // If the first line is a header (e.g., it contains "Date"), remove it
+    if (lines[0].toLowerCase().includes('date')) {
+        lines.shift();
+    }
+
+    // Process each line (expecting at least Date, Start Time, End Time)
+    lines.forEach(line => {
+        // Simple CSV splitting by comma.
+        const cols = line.split(',');
+        if (cols.length < 3) return; // Skip if not enough columns
+
+        const date = cols[0].trim();
+        // Only process rows where the date is in the expected format (yyyy-mm-dd)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+
+        const startTime = cols[1].trim();
+        const endTime = cols[2].trim();
+
+        // Save to calendar.entries using the date as key
+        calendar.entries[date] = { startTime, endTime };
+    });
+
+    // Re-render the calendar and save the imported data
+    calendar.render();
+    saveData();
+
+    // Optionally, clear the file input value so the same file can be re-imported if needed
+    document.getElementById('csvFileInput').value = "";
+}
+
+
 // =======================
 // Calendar object
 // =======================
