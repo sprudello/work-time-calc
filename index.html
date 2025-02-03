@@ -1,85 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Wage Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wage Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="section">
-        <h2>Hourly Wage</h2>
-        <div class="input-group">
-            <label>Base Hourly Wage (€):</label>
-            <input type="number" id="hourlyWage" step="0.01" value="15">
+  <!-- Header with Title and Dark Mode Toggle -->
+  <header>
+    <h1>Wage Calculator</h1>
+    <button id="toggleDarkMode">Night Mode</button>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Hourly Wage Section -->
+    <section class="section">
+      <h2>Hourly Wage</h2>
+      <div class="input-group">
+        <label for="hourlyWage">Base Hourly Wage (€):</label>
+        <input type="number" id="hourlyWage" step="0.01" value="15" />
+      </div>
+    </section>
+
+    <!-- Wage Boosters Section -->
+    <section class="section">
+      <h2>Wage Boosters</h2>
+      <button onclick="addBooster()">Add Booster</button>
+      <div id="boostersContainer"></div>
+    </section>
+
+    <!-- Work Time Entries Section -->
+    <section class="section">
+      <h2>Work Time Entries</h2>
+      <button onclick="clearAllData()" class="clear-button">
+        Clear All Work Entries
+      </button>
+      <div class="calendar">
+        <div class="calendar-header">
+          <button class="nav-button" onclick="calendar.prevMonth()">←</button>
+          <h3 id="currentMonth"></h3>
+          <button class="nav-button" onclick="calendar.nextMonth()">→</button>
         </div>
-    </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </section>
 
-    <div class="section">
-        <h2>Wage Boosters</h2>
-        <button onclick="addBooster()">Add Booster</button>
-        <div id="boostersContainer"></div>
-    </div>
+    <!-- Results and Actions Section -->
+    <section class="section">
+      <button onclick="calculateWage()">Calculate Total Wage</button>
+      <button onclick="calculateWageForCurrentMonth()">
+        Calculate Wage (Current Month)
+      </button>
+      <button onclick="exportCSV()">Export CSV (Current Month)</button>
+      <h3>Results:</h3>
+      <div id="results"></div>
+    </section>
 
-    <div class="section">
-        <h2>Work Time Entries</h2>
-        <button onclick="clearAllData()" style="background-color: #ff4444; color: white;">Clear All Work Entries</button>
-        <div class="calendar">
-            <div class="calendar-header">
-                <button class="nav-button" onclick="calendar.prevMonth()">←</button>
-                <h3 id="currentMonth"></h3>
-                <button class="nav-button" onclick="calendar.nextMonth()">→</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-        </div>
-    </div>
-
-    <div class="section">
-        <button onclick="calculateWage()">Calculate Total Wage</button>
-        <button onclick="calculateWageForCurrentMonth()">Calculate Wage (Current Month)</button>
-        <button onclick="exportCSV()">Export CSV (Current Month)</button>
-        
-        <h3>Results:</h3>
-        <div id="results"></div>
-    </div>
-
-    <!-- Template for boosters -->
+    <!-- Booster Template -->
     <template id="boosterTemplate">
-        <div class="booster">
-            <div class="input-group">
-                <label>Percentage (%):</label>
-                <input type="number" class="booster-percent" step="0.1" value="10">
-            </div>
-            <div class="days-container">
-                <label><input type="checkbox" class="day" value="0">Sun</label>
-                <label><input type="checkbox" class="day" value="1">Mon</label>
-                <label><input type="checkbox" class="day" value="2">Tue</label>
-                <label><input type="checkbox" class="day" value="3">Wed</label>
-                <label><input type="checkbox" class="day" value="4">Thu</label>
-                <label><input type="checkbox" class="day" value="5">Fri</label>
-                <label><input type="checkbox" class="day" value="6">Sat</label>
-            </div>
-            <div class="input-group">
-                <label>Active Time:</label>
-                <input type="time" class="start-time" value="22:00">
-                to
-                <input type="time" class="end-time" value="06:00">
-            </div>
-            <button onclick="this.parentElement.remove()">Remove</button>
+      <div class="booster">
+        <div class="input-group">
+          <label>Percentage (%):</label>
+          <input type="number" class="booster-percent" step="0.1" value="10" />
         </div>
+        <div class="days-container">
+          <label><input type="checkbox" class="day" value="0" />Sun</label>
+          <label><input type="checkbox" class="day" value="1" />Mon</label>
+          <label><input type="checkbox" class="day" value="2" />Tue</label>
+          <label><input type="checkbox" class="day" value="3" />Wed</label>
+          <label><input type="checkbox" class="day" value="4" />Thu</label>
+          <label><input type="checkbox" class="day" value="5" />Fri</label>
+          <label><input type="checkbox" class="day" value="6" />Sat</label>
+        </div>
+        <div class="input-group">
+          <label>Active Time:</label>
+          <input type="time" class="start-time" value="22:00" />
+          to
+          <input type="time" class="end-time" value="06:00" />
+        </div>
+        <button onclick="this.parentElement.remove()">Remove</button>
+      </div>
     </template>
 
-    <div id="timeEntryModal" class="time-entry-modal" style="display: none;">
-        <h3>Add Work Time for <span id="modalDate"></span></h3>
-        <div class="input-group">
-            <label>Start Time:</label>
-            <input type="time" id="modalStartTime" value="19:00" required>
-        </div>
-        <div class="input-group">
-            <label>End Time:</label>
-            <input type="time" id="modalEndTime" value="05:00" required>
-        </div>
-        <button onclick="calendar.saveEntry()">Save</button>
-        <button onclick="calendar.closeModal()">Cancel</button>
+    <!-- Time Entry Modal -->
+    <div id="timeEntryModal" class="time-entry-modal">
+      <h3>
+        Add Work Time for <span id="modalDate"></span>
+      </h3>
+      <div class="input-group">
+        <label for="modalStartTime">Start Time:</label>
+        <input type="time" id="modalStartTime" value="19:00" required />
+      </div>
+      <div class="input-group">
+        <label for="modalEndTime">End Time:</label>
+        <input type="time" id="modalEndTime" value="05:00" required />
+      </div>
+      <button onclick="calendar.saveEntry()">Save</button>
+      <button onclick="calendar.closeModal()">Cancel</button>
     </div>
-    <script src="main.js"></script>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Wage Calculator</p>
+  </footer>
+
+  <script src="main.js"></script>
 </body>
 </html>
