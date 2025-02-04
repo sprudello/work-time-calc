@@ -1,7 +1,45 @@
 // calculation.js - Contains wage calculations and CSV export functions
 
 /**
- * Calculates the number of overlapping hours between a work shift and a booster’s active time.
+ * Calculates the total wage for a single shift given a base wage, global boosters,
+ * and a day-specific booster that applies only until midnight of the entry date.
+ * @param {number} baseWage 
+ * @param {Array} boosters - Global boosters array.
+ * @param {Date} shiftStart 
+ * @param {Date} shiftEnd 
+ * @param {number|null} dayBooster - The day-specific booster percentage (if any).
+ * @returns {number} Total wage for the shift.
+ */
+function calculateShiftWage(baseWage, boosters, shiftStart, shiftEnd, dayBooster) {
+  const totalDuration = (shiftEnd - shiftStart) / (1000 * 60 * 60);
+  let total = baseWage * totalDuration;
+  let boosterAmount = 0;
+  
+  // Apply global boosters (if any)
+  boosters.forEach(booster => {
+    const overlapHours = calculateOverlap(shiftStart, shiftEnd, booster);
+    if (overlapHours > 0) {
+      boosterAmount += baseWage * (booster.percent / 100) * overlapHours;
+    }
+  });
+  
+  // Apply day-specific booster only for the portion until midnight.
+  if (dayBooster && dayBooster > 0) {
+    // Determine the end of the entry day (midnight).
+    const entryDate = new Date(shiftStart.getFullYear(), shiftStart.getMonth(), shiftStart.getDate());
+    const midnight = new Date(entryDate);
+    midnight.setDate(midnight.getDate() + 1); // 00:00 of next day
+    // The effective duration for the day booster is from shiftStart to the earlier of shiftEnd or midnight.
+    const effectiveEnd = shiftEnd < midnight ? shiftEnd : midnight;
+    const effectiveDuration = (effectiveEnd - shiftStart) / (1000 * 60 * 60);
+    boosterAmount += baseWage * (dayBooster / 100) * effectiveDuration;
+  }
+  
+  return total + boosterAmount;
+}
+
+/**
+ * Calculates overlapping hours between a work shift and a global booster's active time.
  * @param {Date} workStart 
  * @param {Date} workEnd 
  * @param {object} booster 
@@ -10,13 +48,12 @@
 export function calculateOverlap(workStart, workEnd, booster) {
   let totalHours = 0;
   let currentDay = new Date(workStart);
-
   while (currentDay < workEnd) {
     const dayOfWeek = currentDay.getDay();
-    if (booster.days.includes(dayOfWeek)) {
+    let boosterDays = booster.days.map(Number);
+    if (boosterDays.includes(dayOfWeek)) {
       const [startH, startM] = booster.startTime.split(':');
       const [endH, endM] = booster.endTime.split(':');
-
       let dayStart = new Date(currentDay);
       dayStart.setHours(parseInt(startH), parseInt(startM));
       let dayEnd = new Date(currentDay);
@@ -24,7 +61,6 @@ export function calculateOverlap(workStart, workEnd, booster) {
       if (dayEnd <= dayStart) {
         dayEnd.setDate(dayEnd.getDate() + 1);
       }
-
       const overlapStart = new Date(Math.max(workStart, dayStart));
       const overlapEnd = new Date(Math.min(workEnd, dayEnd));
       if (overlapStart < overlapEnd) {
@@ -35,27 +71,6 @@ export function calculateOverlap(workStart, workEnd, booster) {
     currentDay.setHours(0, 0, 0, 0);
   }
   return totalHours;
-}
-
-/**
- * Helper function to calculate wage for a single shift.
- * @param {number} baseWage 
- * @param {Array} boosters 
- * @param {Date} shiftStart 
- * @param {Date} shiftEnd 
- * @returns {number} Total wage for the shift
- */
-function calculateShiftWage(baseWage, boosters, shiftStart, shiftEnd) {
-  const totalDuration = (shiftEnd - shiftStart) / (1000 * 60 * 60);
-  let total = baseWage * totalDuration;
-  let boosterAmount = 0;
-  boosters.forEach(booster => {
-    const overlapHours = calculateOverlap(shiftStart, shiftEnd, booster);
-    if (overlapHours > 0) {
-      boosterAmount += baseWage * (booster.percent / 100) * overlapHours;
-    }
-  });
-  return total + boosterAmount;
 }
 
 /**
@@ -70,7 +85,6 @@ export function calculateWage() {
     startTime: booster.querySelector('.start-time').value,
     endTime: booster.querySelector('.end-time').value,
   }));
-
   const timeEntries = Object.entries(window.calendar.entries).map(([dateString, times]) => {
     const [startH, startM] = times.startTime.split(':');
     const [endH, endM] = times.endTime.split(':');
@@ -80,13 +94,13 @@ export function calculateWage() {
     if (end <= start) {
       end.setDate(end.getDate() + 1);
     }
-    return { start, end };
+    return { start, end, dayBooster: times.dayBooster };
   });
-
+  
   let totalWage = 0;
   let totalHours = 0;
   let boostDetails = [];
-
+  
   timeEntries.forEach(entry => {
     const duration = (entry.end - entry.start) / (1000 * 60 * 60);
     totalHours += duration;
@@ -101,16 +115,31 @@ export function calculateWage() {
         });
       }
     });
+    // Apply day-specific booster only to the portion before midnight.
+    if (entry.dayBooster && entry.dayBooster > 0) {
+      const [year, month, day] = entry.start.toISOString().split('T')[0].split('-').map(Number);
+      const entryDate = new Date(year, month - 1, day);
+      const midnight = new Date(entryDate);
+      midnight.setDate(midnight.getDate() + 1);
+      const effectiveEnd = entry.end < midnight ? entry.end : midnight;
+      const effectiveDuration = (effectiveEnd - entry.start) / (1000 * 60 * 60);
+      boostMultiplier += (entry.dayBooster / 100) * effectiveDuration;
+      boostDetails.push({
+        percent: entry.dayBooster,
+        hours: effectiveDuration.toFixed(2),
+        entry: "day booster"
+      });
+    }
     totalWage += hourlyWage * duration + hourlyWage * boostMultiplier;
   });
-
+  
   const results = document.getElementById('results');
   results.innerHTML = `
     <p>Total Hours: ${totalHours.toFixed(2)}</p>
     <p>Base Wage: €${(hourlyWage * totalHours).toFixed(2)}</p>
     <p>Boosted Amount: €${(totalWage - hourlyWage * totalHours).toFixed(2)}</p>
     <h4>Total Wage: €${totalWage.toFixed(2)}</h4>
-    ${ boostDetails.length ? `<p>Boosts Applied: ${boostDetails.map(d => `${d.percent}% on ${d.hours}h`).join(', ')}</p>` : '' }
+    ${ boostDetails.length ? `<p>Boosts Applied: ${boostDetails.map(d => d.entry ? `${d.percent}% on ${d.hours}h (${d.entry})` : `${d.percent}% on ${d.hours}h`).join(', ')}</p>` : '' }
   `;
 }
 
@@ -126,7 +155,6 @@ export function calculateWageForCurrentMonth() {
     startTime: booster.querySelector('.start-time').value,
     endTime: booster.querySelector('.end-time').value,
   }));
-
   const currentYear = window.calendar.currentDate.getFullYear();
   const currentMonth = window.calendar.currentDate.getMonth();
 
@@ -160,6 +188,21 @@ export function calculateWageForCurrentMonth() {
           });
         }
       });
+      if (times.dayBooster && times.dayBooster > 0) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const entryDate = new Date(year, month - 1, day);
+        const midnight = new Date(entryDate);
+        midnight.setDate(midnight.getDate() + 1);
+        const effectiveEnd = end < midnight ? end : midnight;
+        const effectiveDuration = (effectiveEnd - start) / (1000 * 60 * 60);
+        boostMultiplier += (times.dayBooster / 100) * effectiveDuration;
+        boostDetails.push({
+          date: dateString,
+          percent: times.dayBooster,
+          hours: effectiveDuration.toFixed(2),
+          entry: "day booster"
+        });
+      }
       totalWage += hourlyWage * duration + hourlyWage * boostMultiplier;
     }
   }
@@ -171,7 +214,7 @@ export function calculateWageForCurrentMonth() {
     <p>Base Wage: €${(hourlyWage * totalHours).toFixed(2)}</p>
     <p>Boosted Amount: €${(totalWage - hourlyWage * totalHours).toFixed(2)}</p>
     <h4>Total Wage: €${totalWage.toFixed(2)}</h4>
-    ${ boostDetails.length ? `<p>Boosts Applied: ${boostDetails.map(d => `${d.percent}% on ${d.hours}h (entry ${d.date})`).join(', ')}</p>` : '' }
+    ${ boostDetails.length ? `<p>Boosts Applied: ${boostDetails.map(d => d.entry ? `${d.percent}% on ${d.hours}h (${d.entry})` : `${d.percent}% on ${d.hours}h`).join(', ')}</p>` : '' }
   `;
 }
 
@@ -203,7 +246,7 @@ export function exportCSV() {
         end.setDate(end.getDate() + 1);
       }
       const duration = (end - start) / (1000 * 60 * 60);
-      const shiftWage = calculateShiftWage(baseWage, boosters, start, end);
+      const shiftWage = calculateShiftWage(baseWage, boosters, start, end, times.dayBooster);
       totalHours += duration;
       totalWages += shiftWage;
       rows.push([

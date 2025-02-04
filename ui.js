@@ -40,7 +40,7 @@ export function initUI() {
     csvFileInput.addEventListener('change', handleCSVImport);
   }
 
-  // NEW: Attach listener for the visible Import CSV button.
+  // Attach listener for the visible Import CSV button.
   const importCsvButton = document.getElementById('importCsvButton');
   if (importCsvButton) {
     importCsvButton.addEventListener('click', () => {
@@ -103,12 +103,10 @@ function handleCSVImport(event) {
  */
 function importCSV(csvText) {
   const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
-
   // Remove header row if present.
   if (lines[0] && lines[0].toLowerCase().includes('date')) {
     lines.shift();
   }
-
   lines.forEach(line => {
     const cols = line.split(',');
     if (cols.length < 3) return;
@@ -118,11 +116,8 @@ function importCSV(csvText) {
     const endTime = cols[2].trim();
     calendar.entries[date] = { startTime, endTime };
   });
-
   calendar.render();
   saveData();
-
-  // Clear file input value so the same file can be re-imported.
   const csvFileInput = document.getElementById('csvFileInput');
   if (csvFileInput) {
     csvFileInput.value = "";
