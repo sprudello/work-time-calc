@@ -118,29 +118,33 @@ export const calendar = {
     if (existingEntry) {
       document.getElementById('modalStartTime').value = existingEntry.startTime;
       document.getElementById('modalEndTime').value = existingEntry.endTime;
+      document.getElementById('modalDayBoosterPercent').value =
+        existingEntry.dayBooster ? existingEntry.dayBooster : 0;
     } else {
       document.getElementById('modalStartTime').value = '19:00';
       document.getElementById('modalEndTime').value = '05:00';
+      document.getElementById('modalDayBoosterPercent').value = 0;
     }
     modal.style.display = 'block';
   },
 
   /**
-   * Saves the work entry from the modal.
+   * Saves the work entry (including day-specific booster) from the modal.
    */
   saveEntry() {
     if (!this.selectedDate) return;
 
     const dateKey = this.formatDate(this.selectedDate);
+    const dayBooster = parseFloat(document.getElementById('modalDayBoosterPercent').value) || 0;
     this.entries[dateKey] = {
       startTime: document.getElementById('modalStartTime').value,
-      endTime: document.getElementById('modalEndTime').value
+      endTime: document.getElementById('modalEndTime').value,
+      dayBooster: dayBooster > 0 ? dayBooster : null
     };
 
     this.closeModal();
     this.render();
 
-    // Save updated data.
     import('./storage.js').then(module => {
       module.saveData();
     });

@@ -1,7 +1,7 @@
 // storage.js - Handles saving to and loading from localStorage
 
 /**
- * Saves wage, boosters, and calendar entries to localStorage.
+ * Saves wage, global boosters, and calendar entries to localStorage.
  */
 export function saveData() {
   const hourlyWageEl = document.getElementById('hourlyWage');

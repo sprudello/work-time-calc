@@ -24,9 +24,9 @@
       </div>
     </section>
 
-    <!-- Wage Boosters Section -->
+    <!-- Global Wage Boosters Section -->
     <section class="section">
-      <h2>Wage Boosters</h2>
+      <h2>Global Wage Boosters</h2>
       <button onclick="addBooster()">Add Booster</button>
       <div id="boostersContainer"></div>
     </section>
@@ -35,7 +35,7 @@
     <section class="section">
       <h2>Work Time Entries</h2>
       <button onclick="clearAllData()" class="clear-button">Clear All Work Entries</button>
-      <!-- New visible Import CSV button -->
+      <!-- Visible Import CSV button -->
       <button id="importCsvButton">Import CSV</button>
       <div class="calendar">
         <div class="calendar-header">
@@ -58,7 +58,7 @@
     </section>
 
 
-    <!-- Booster Template -->
+    <!-- Booster Template (for global boosters) -->
     <template id="boosterTemplate">
       <div class="booster">
         <div class="input-group">
@@ -84,7 +84,7 @@
       </div>
     </template>
 
-    <!-- Time Entry Modal -->
+    <!-- Time Entry Modal with Day Booster -->
     <div id="timeEntryModal" class="time-entry-modal">
       <h3>
         Add Work Time for <span id="modalDate"></span>
@@ -96,6 +96,11 @@
       <div class="input-group">
         <label for="modalEndTime">End Time:</label>
         <input type="time" id="modalEndTime" value="05:00" required />
+      </div>
+      <!-- Day Booster: Applies only until midnight of that day -->
+      <div class="input-group">
+        <label for="modalDayBoosterPercent">Day Booster (%):</label>
+        <input type="number" id="modalDayBoosterPercent" step="0.1" value="0" />
       </div>
       <button onclick="calendar.saveEntry()">Save</button>
       <button onclick="calendar.closeModal()">Cancel</button>
