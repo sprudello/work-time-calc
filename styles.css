@@ -2,304 +2,298 @@
    CSS Variables & Reset
 ========================= */
 :root {
-    --bg-color: #f0f0f2;
-    --text-color: #333;
-    --accent-color: #007bff;
-    --accent-color-hover: #005bbf;
-    --card-bg: #fff;
-    --border-color: #ccc;
-    --header-bg: #ffffff;
-    --header-text: #333;
-  }
-  
-  /* Dark mode overrides */
-  body.dark-mode {
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --accent-color: #bb86fc;
-    --accent-color-hover: #9a67ea;
-    --card-bg: #1e1e1e;
-    --border-color: #444;
-    --header-bg: #1f1f1f;
-    --header-text: #e0e0e0;
-  }
-  
-  * {
-    box-sizing: border-box;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    transition: background 0.3s, color 0.3s;
-  }
-  
-  /* =======================
-     Header
-  ========================= */
-  header {
-    background: var(--header-bg);
-    color: var(--header-text);
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-  }
-  
-  #toggleDarkMode {
-    background: var(--accent-color);
-    border: none;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  #toggleDarkMode:hover {
-    background: var(--accent-color-hover);
-  }
-  
-  /* =======================
-     Main Container
-  ========================= */
-  .container {
-    max-width: 1000px;
-    margin: 20px auto;
-    padding: 20px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* =======================
-     Sections
-  ========================= */
-  .section {
-    margin-bottom: 30px;
-  }
-  
-  .section h2 {
-    margin-bottom: 10px;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 5px;
-  }
-  
-  /* =======================
-     Input Groups
-  ========================= */
-  .input-group {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-  }
-  
-  .input-group label {
-    width: 180px;
-    font-weight: bold;
-  }
-  
-  .input-group input[type="number"],
-  .input-group input[type="time"] {
-    padding: 6px;
-    margin-left: 10px;
-    width: 120px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--card-bg);
-    color: var(--text-color);
-  }
-  
-  /* =======================
-     Buttons
-  ========================= */
-  button {
-    background: var(--accent-color);
-    color: #fff;
-    border: none;
-    padding: 8px 15px;
-    margin: 5px 0;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: background 0.3s;
-  }
-  
-  button:hover {
-    background: var(--accent-color-hover);
-  }
-  
-  button.clear-button {
-    background-color: #dc3545;
-  }
-  
-  button.clear-button:hover {
-    background-color: #c82333;
-  }
-  
-  .nav-button {
-    padding: 6px 10px;
-    margin: 0 10px;
-  }
-  
-  /* Dark mode overrides for buttons */
-  body.dark-mode button {
-    background: #444;
-    color: #fff;
-  }
-  
-  body.dark-mode button:hover {
-    background: #333;
-  }
-  
-  /* =======================
-     Calendar
-  ========================= */
-  .calendar {
-    margin: 20px 0;
-  }
-  
-  .calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-  
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-  }
-  
-  .calendar-grid > div {
-    text-align: center;
-    padding: 8px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-  }
-  
-  /* Header cells (weekdays) override in dark mode */
-  .calendar-grid > div[style*="font-weight"] {
-    background: #f7f7f7;
-    border: 1px solid var(--border-color);
-  }
-  
-  body.dark-mode .calendar-grid > div[style*="font-weight"] {
-    background: #333;
-    color: #e0e0e0;
-    border: 1px solid #444;
-  }
-  
-  .calendar-day {
-    cursor: pointer;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .calendar-day.worked {
-    background-color: #ffeeba !important;
-    color: #856404;
-  }
-  
-  /* Dark mode override for worked day */
-  body.dark-mode .calendar-day.worked {
-    background-color: #665c1e !important;
-    color: #fff;
-  }
-  
-  /* =======================
-     Modal
-  ========================= */
-  .time-entry-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 320px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    z-index: 999;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-  }
-  
-  .time-entry-modal h3 {
-    margin-top: 0;
-  }
-  
-  .time-entry-modal button {
-    margin-top: 10px;
-  }
-  
-  /* =======================
-     Results
-  ========================= */
-  #results {
-    background: #f9f9f9;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    margin-top: 10px;
-    border-radius: 4px;
-  }
-  
-  /* Dark mode override for results field */
-  body.dark-mode #results {
-    background: #1e1e1e;
-    color: #e0e0e0;
-    border: 1px solid #444;
-  }
-  
-  /* =======================
-     Boosters
-  ========================= */
-  #boostersContainer {
-    margin-top: 10px;
-  }
-  
-  .booster {
-    background: #f9f9f9;
-    border: 1px solid var(--border-color);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 6px;
-  }
-  
-  .booster .input-group {
-    margin: 8px 0;
-  }
-  
-  .days-container {
-    margin-top: 8px;
-  }
-  
-  .days-container label {
-    margin-right: 10px;
-  }
-  
-  /* =======================
-     Footer
-  ========================= */
-  footer {
-    text-align: center;
-    color: var(--text-color);
-    font-size: 0.85rem;
-    margin-top: 10px;
-    padding: 20px 0;
-    border-top: 1px solid var(--border-color);
-  }
-  
+  --bg-color: #f0f0f2;
+  --text-color: #333;
+  --accent-color: #007bff;
+  --accent-color-hover: #005bbf;
+  --card-bg: #fff;
+  --border-color: #ccc;
+  --header-bg: #ffffff;
+  --header-text: #333;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --accent-color: #bb86fc;
+  --accent-color-hover: #9a67ea;
+  --card-bg: #1e1e1e;
+  --border-color: #444;
+  --header-bg: #1f1f1f;
+  --header-text: #e0e0e0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* =======================
+   Header
+========================= */
+header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+#toggleDarkMode {
+  background: var(--accent-color);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#toggleDarkMode:hover {
+  background: var(--accent-color-hover);
+}
+
+/* =======================
+   Main Container
+========================= */
+.container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* =======================
+   Sections
+========================= */
+.section {
+  margin-bottom: 30px;
+}
+
+.section h2 {
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+/* =======================
+   Input Groups
+========================= */
+.input-group {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.input-group label {
+  width: 180px;
+  font-weight: bold;
+}
+
+.input-group input[type="number"],
+.input-group input[type="time"] {
+  padding: 6px;
+  margin-left: 10px;
+  width: 120px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* =======================
+   Buttons
+========================= */
+button {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  margin: 5px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: var(--accent-color-hover);
+}
+
+button.clear-button {
+  background-color: #dc3545;
+}
+
+button.clear-button:hover {
+  background-color: #c82333;
+}
+
+.nav-button {
+  padding: 6px 10px;
+  margin: 0 10px;
+}
+
+/* Dark mode button overrides */
+body.dark-mode button {
+  background: #444;
+  color: #fff;
+}
+body.dark-mode button:hover {
+  background: #333;
+}
+
+/* =======================
+   Calendar
+========================= */
+.calendar {
+  margin: 20px 0;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendar-grid > div {
+  text-align: center;
+  padding: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+/* Weekday headers */
+.calendar-grid > div[style*="font-weight"] {
+  background: #f7f7f7;
+  border: 1px solid var(--border-color);
+}
+body.dark-mode .calendar-grid > div[style*="font-weight"] {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.calendar-day {
+  cursor: pointer;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day.worked {
+  background-color: #ffeeba !important;
+  color: #856404;
+}
+body.dark-mode .calendar-day.worked {
+  background-color: #665c1e !important;
+  color: #fff;
+}
+
+/* =======================
+   Modal
+========================= */
+.time-entry-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.time-entry-modal h3 {
+  margin-top: 0;
+}
+
+.time-entry-modal button {
+  margin-top: 10px;
+}
+
+/* =======================
+   Results
+========================= */
+#results {
+  background: #f9f9f9;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  margin-top: 10px;
+  border-radius: 4px;
+}
+body.dark-mode #results {
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+/* =======================
+   Boosters
+========================= */
+#boostersContainer {
+  margin-top: 10px;
+}
+.booster {
+  background: #f9f9f9;
+  border: 1px solid var(--border-color);
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+}
+body.dark-mode .booster {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+.booster .input-group {
+  margin: 8px 0;
+}
+.days-container {
+  margin-top: 8px;
+}
+.days-container label {
+  margin-right: 10px;
+}
+
+/* =======================
+   Footer
+========================= */
+footer {
+  text-align: center;
+  color: var(--text-color);
+  font-size: 0.85rem;
+  margin-top: 10px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-color);
+}

@@ -34,9 +34,9 @@
     <!-- Work Time Entries Section -->
     <section class="section">
       <h2>Work Time Entries</h2>
-      <button onclick="clearAllData()" class="clear-button">
-        Clear All Work Entries
-      </button>
+      <button onclick="clearAllData()" class="clear-button">Clear All Work Entries</button>
+      <!-- New visible Import CSV button -->
+      <button id="importCsvButton">Import CSV</button>
       <div class="calendar">
         <div class="calendar-header">
           <button class="nav-button" onclick="calendar.prevMonth()">←</button>
@@ -50,9 +50,7 @@
     <!-- Results and Actions Section -->
     <section class="section">
       <button onclick="calculateWage()">Calculate Total Wage</button>
-      <button onclick="calculateWageForCurrentMonth()">
-        Calculate Wage (Current Month)
-      </button>
+      <button onclick="calculateWageForCurrentMonth()">Calculate Wage (Current Month)</button>
       <button onclick="exportCSV()">Export CSV (Current Month)</button>
       <h3>Results:</h3>
       <div id="results"></div>
@@ -100,12 +98,16 @@
       <button onclick="calendar.saveEntry()">Save</button>
       <button onclick="calendar.closeModal()">Cancel</button>
     </div>
+
+    <!-- Hidden CSV file input for import -->
+    <input type="file" id="csvFileInput" style="display: none;" accept=".csv" />
   </div>
 
   <footer>
     <p>&copy; 2025 Wage Calculator</p>
   </footer>
 
-  <script src="main.js"></script>
+  <!-- Load the main module (only once) -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
