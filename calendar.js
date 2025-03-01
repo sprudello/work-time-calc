@@ -1,175 +1,123 @@
-// calendar.js - Manages the calendar view and work-time entries
-
+// calendar.js
 export const calendar = {
-  selectedDate: null,
-  currentDate: new Date(),
   entries: {},
+  currentDate: new Date(),
 
-  /** Initializes the calendar view. */
   init() {
     this.render();
   },
 
-  /**
-   * Formats a Date object as yyyy-mm-dd.
-   * @param {Date} date 
-   * @returns {string}
-   */
-  formatDate(date) {
-    const year  = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day   = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  },
-
-  /**
-   * Returns a new Date object with time set to 00:00.
-   * @param {Date} date 
-   * @returns {Date}
-   */
-  stripTime(date) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  },
-
-  /**
-   * Creates a Date object from a date string (yyyy-mm-dd) and a time string (HH:MM).
-   * @param {string} dateString 
-   * @param {string} timeString 
-   * @returns {Date}
-   */
-  parseTime(dateString, timeString) {
-    const [y, m, d] = dateString.split('-');
-    const [hh, mm] = timeString.split(':');
-    return new Date(y, m - 1, d, hh, mm);
-  },
-
-  /**
-   * Renders the calendar grid and marks days with work entries.
-   */
   render() {
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    document.getElementById('currentMonth').textContent =
-      `${monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
-
-    const grid = document.getElementById('calendarGrid');
-    grid.innerHTML = '';
-
-    // Create weekday header cells.
-    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-      const header = document.createElement('div');
-      header.textContent = day;
-      header.style.fontWeight = 'bold';
-      grid.appendChild(header);
-    });
-
-    const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-    const daysInMonth = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
-    const startDay = firstDay.getDay();
-
-    // Insert blank cells before the first day.
-    for (let i = 0; i < startDay; i++) {
-      grid.appendChild(document.createElement('div'));
+    const calendarGrid = document.getElementById('calendarGrid');
+    calendarGrid.innerHTML = "";
+    
+    // Update header with current month and year.
+    const currentMonthHeader = document.getElementById('currentMonth');
+    if (currentMonthHeader) {
+      currentMonthHeader.textContent = new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        year: "numeric"
+      }).format(this.currentDate);
     }
-
-    const entriesArray = Object.entries(this.entries);
-
-    // Create day cells.
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day);
-      const dayElement = document.createElement('div');
-      dayElement.className = 'calendar-day';
-      dayElement.textContent = day;
-
-      // Mark the day as "worked" if any shift overlaps.
-      for (const [entryDateString, times] of entriesArray) {
-        const shiftStart = this.parseTime(entryDateString, times.startTime);
-        let shiftEnd = this.parseTime(entryDateString, times.endTime);
-        if (shiftEnd <= shiftStart) {
-          shiftEnd.setDate(shiftEnd.getDate() + 1);
-        }
-        if (
-          this.stripTime(date) >= this.stripTime(shiftStart) &&
-          this.stripTime(date) <= this.stripTime(shiftEnd)
-        ) {
-          dayElement.classList.add('worked');
-          break;
+    
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    const lastDay = new Date(year, month + 1, 0);
+    const numDays = lastDay.getDate();
+    
+    // Helper to get the previous day's date string in "YYYY-MM-DD" format.
+    const getPrevDateStr = (year, month, day) => {
+      const prevDate = new Date(year, month, day - 1);
+      const pYear = prevDate.getFullYear();
+      const pMonth = prevDate.getMonth() + 1;
+      const pDay = prevDate.getDate();
+      return `${pYear}-${String(pMonth).padStart(2, '0')}-${String(pDay).padStart(2, '0')}`;
+    };
+    
+    for (let day = 1; day <= numDays; day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayDiv = document.createElement('div');
+      dayDiv.classList.add('calendar-day');
+      dayDiv.textContent = day;
+      
+      // If the day has its own shift entry, mark it as worked.
+      if (this.entries[dateStr]) {
+        dayDiv.classList.add('worked');
+      } else {
+        // Otherwise, check if the previous day's shift is overnight.
+        const prevDateStr = getPrevDateStr(year, month, day);
+        if (this.entries[prevDateStr]) {
+          const entry = this.entries[prevDateStr];
+          // We assume that if the end time is less than the start time (e.g. "05:00" < "19:00"),
+          // then the shift goes overnight.
+          if (entry.endTime < entry.startTime) {
+            dayDiv.classList.add('overnight');
+          }
         }
       }
-
-      // Open modal to add/edit work entry on click.
-      dayElement.addEventListener('click', () => this.showModal(date));
-      grid.appendChild(dayElement);
+      
+      // Add click listener to open the modal for manual shift entry.
+      dayDiv.addEventListener('click', () => {
+        this.openModal(dateStr);
+      });
+      
+      calendarGrid.appendChild(dayDiv);
     }
   },
 
   /**
-   * Opens the modal for a given date.
-   * @param {Date} date 
+   * Parses a time string (e.g., "19:30") for a given date string (YYYY-MM-DD) and returns a Date object.
+   * @param {string} dateStr 
+   * @param {string} timeStr 
+   * @returns {Date}
    */
-  showModal(date) {
-    this.selectedDate = date;
+  parseTime(dateStr, timeStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [h, m] = timeStr.split(':').map(Number);
+    return new Date(year, month - 1, day, h, m);
+  },
+
+  /**
+   * Opens the modal for adding or editing a shift on the given date.
+   * @param {string} dateStr - Date in format YYYY-MM-DD
+   */
+  openModal(dateStr) {
     const modal = document.getElementById('timeEntryModal');
-    document.getElementById('modalDate').textContent = date.toLocaleDateString();
-
-    const existingEntry = this.entries[this.formatDate(date)];
-    if (existingEntry) {
-      document.getElementById('modalStartTime').value = existingEntry.startTime;
-      document.getElementById('modalEndTime').value = existingEntry.endTime;
-      document.getElementById('modalDayBoosterPercent').value =
-        existingEntry.dayBooster ? existingEntry.dayBooster : 0;
-    } else {
-      document.getElementById('modalStartTime').value = '19:00';
-      document.getElementById('modalEndTime').value = '05:00';
-      document.getElementById('modalDayBoosterPercent').value = 0;
-    }
     modal.style.display = 'block';
+    modal.dataset.date = dateStr;
+    const modalDateSpan = document.getElementById('modalDate');
+    modalDateSpan.textContent = dateStr;
   },
 
   /**
-   * Saves the work entry (including day-specific booster) from the modal.
-   */
-  saveEntry() {
-    if (!this.selectedDate) return;
-
-    const dateKey = this.formatDate(this.selectedDate);
-    const dayBooster = parseFloat(document.getElementById('modalDayBoosterPercent').value) || 0;
-    this.entries[dateKey] = {
-      startTime: document.getElementById('modalStartTime').value,
-      endTime: document.getElementById('modalEndTime').value,
-      dayBooster: dayBooster > 0 ? dayBooster : null
-    };
-
-    this.closeModal();
-    this.render();
-
-    import('./storage.js').then(module => {
-      module.saveData();
-    });
-    this.selectedDate = null;
-  },
-
-  /**
-   * Closes the work entry modal.
+   * Closes the time entry modal.
    */
   closeModal() {
-    document.getElementById('timeEntryModal').style.display = 'none';
+    const modal = document.getElementById('timeEntryModal');
+    modal.style.display = 'none';
   },
 
-  /** Moves the calendar view to the previous month. */
-  prevMonth() {
-    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+  /**
+   * Saves the shift data entered in the modal to the calendar entries.
+   */
+  saveEntry() {
+    const modal = document.getElementById('timeEntryModal');
+    const dateStr = modal.dataset.date;
+    const startTime = document.getElementById('modalStartTime').value;
+    const endTime = document.getElementById('modalEndTime').value;
+    const dayBooster = document.getElementById('modalDayBoosterPercent').value;
+    this.entries[dateStr] = { startTime, endTime, dayBooster: dayBooster ? parseFloat(dayBooster) : 0 };
     this.render();
+    this.closeModal();
   },
 
-  /** Moves the calendar view to the next month. */
   nextMonth() {
     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     this.render();
+  },
+
+  prevMonth() {
+    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.render();
   }
 };
-
-// Make the calendar globally available for inline event handlers.
-window.calendar = calendar;

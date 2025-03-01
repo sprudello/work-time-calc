@@ -207,12 +207,17 @@ body.dark-mode .calendar-grid > div[style*="font-weight"] {
   justify-content: center;
 }
 
+.calendar-day.overnight {
+    background-color: #ffcc00 !important;
+}
+body.dark-mode .calendar-day.overnight {
+    background-color: #9b8013 !important;
+}
 .calendar-day.worked {
-  background-color: #ffeeba !important;
-  color: #856404;
+  background-color: #A20013 !important;
 }
 body.dark-mode .calendar-day.worked {
-  background-color: #665c1e !important;
+  background-color: #520505 !important;
   color: #fff;
 }
 

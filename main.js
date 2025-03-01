@@ -4,7 +4,8 @@ import { initUI } from './ui.js';
 import { loadData } from './storage.js';
 import * as calc from './calculation.js';
 
-// Attach calculation functions to the global scope so inline event handlers work.
+// Expose calendar (and calculation functions) globally so inline event handlers work.
+window.calendar = calendar;
 window.calculateWage = calc.calculateWage;
 window.calculateWageForCurrentMonth = calc.calculateWageForCurrentMonth;
 window.exportCSV = calc.exportCSV;
@@ -14,6 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   calendar.init();
   // Load saved data.
   loadData();
-  // Initialize UI event listeners (including CSV import).
+  // Initialize UI event listeners.
   initUI();
 });
