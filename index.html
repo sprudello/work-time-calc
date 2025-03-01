@@ -35,8 +35,10 @@
     <section class="section">
       <h2>Work Time Entries</h2>
       <button onclick="clearAllData()" class="clear-button">Clear All Work Entries</button>
-      <!-- Visible Import CSV button -->
+      <!-- Visible Import CSV button (standard shift import) -->
       <button id="importCsvButton">Import CSV</button>
+      <!-- New button for Add Dienstplan (merges entries) -->
+      <button id="addDienstplanButton">Add Dienstplan</button>
       <div class="calendar">
         <div class="calendar-header">
           <button class="nav-button" onclick="calendar.prevMonth()">←</button>
@@ -47,7 +49,6 @@
       </div>
     </section>
 
-
     <!-- Results and Actions Section -->
     <section class="section">
       <button onclick="calculateWage()">Calculate Total Wage</button>
@@ -56,7 +57,6 @@
       <h3>Results:</h3>
       <div id="results"></div>
     </section>
-
 
     <!-- Booster Template (for global boosters) -->
     <template id="boosterTemplate">
@@ -106,8 +106,10 @@
       <button onclick="calendar.closeModal()">Cancel</button>
     </div>
 
-    <!-- Hidden CSV file input for import -->
+    <!-- Hidden file input for standard shift CSV import -->
     <input type="file" id="csvFileInput" style="display: none;" accept=".csv" />
+    <!-- Hidden file input for Dienstplan CSV import -->
+    <input type="file" id="dienstplanCsvInput" style="display: none;" accept=".csv" />
   </div>
 
   <footer>
