@@ -25,7 +25,7 @@ export const calendar = {
     const lastDay = new Date(year, month + 1, 0);
     const numDays = lastDay.getDate();
     
-    // Helper to get the previous day's date string.
+    // Helper function to compute previous day's date string.
     const getPrevDateStr = (year, month, day) => {
       const prevDate = new Date(year, month, day - 1);
       const pYear = prevDate.getFullYear();
@@ -40,22 +40,23 @@ export const calendar = {
       dayDiv.classList.add('calendar-day');
       dayDiv.textContent = day;
       
-      // Mark day as worked if there's an entry.
+      // If there's a shift entry for the day, mark it as "worked".
       if (this.entries[dateStr]) {
         dayDiv.classList.add('worked');
       } else {
-        // Otherwise, check if previous day's shift is overnight.
+        // Check if the previous day's shift goes overnight.
         const prevDateStr = getPrevDateStr(year, month, day);
         if (this.entries[prevDateStr]) {
           const entry = this.entries[prevDateStr];
-          // Assume that if endTime is less than startTime then it's overnight.
+          // Assume that if the end time is less than the start time (e.g., "05:00" < "19:00")
+          // then the shift goes overnight.
           if (entry.endTime < entry.startTime) {
             dayDiv.classList.add('overnight');
           }
         }
       }
       
-      // Add click listener to open modal.
+      // Allow clicking on a day to open the modal for manual entry/edit.
       dayDiv.addEventListener('click', () => {
         this.openModal(dateStr);
       });
@@ -64,24 +65,53 @@ export const calendar = {
     }
   },
 
+  /**
+   * Parses a time string (e.g., "19:30") for a given date string (YYYY-MM-DD)
+   * and returns a Date object.
+   * @param {string} dateStr
+   * @param {string} timeStr
+   * @returns {Date}
+   */
   parseTime(dateStr, timeStr) {
     const [year, month, day] = dateStr.split('-').map(Number);
     const [h, m] = timeStr.split(':').map(Number);
     return new Date(year, month - 1, day, h, m);
   },
 
+  /**
+   * Opens the modal for a given date. If an entry exists, pre-populates the fields.
+   * @param {string} dateStr - Date in "YYYY-MM-DD" format.
+   */
   openModal(dateStr) {
     const modal = document.getElementById('timeEntryModal');
     modal.style.display = 'block';
     modal.dataset.date = dateStr;
     document.getElementById('modalDate').textContent = dateStr;
+    
+    // Pre-populate fields if an entry exists; otherwise use defaults.
+    if (this.entries[dateStr]) {
+      const entry = this.entries[dateStr];
+      document.getElementById('modalStartTime').value = entry.startTime;
+      document.getElementById('modalEndTime').value = entry.endTime;
+      document.getElementById('modalDayBoosterPercent').value = entry.dayBooster || 0;
+    } else {
+      document.getElementById('modalStartTime').value = "19:00";
+      document.getElementById('modalEndTime').value = "05:00";
+      document.getElementById('modalDayBoosterPercent').value = 0;
+    }
   },
 
+  /**
+   * Closes the time entry modal.
+   */
   closeModal() {
     const modal = document.getElementById('timeEntryModal');
     modal.style.display = 'none';
   },
 
+  /**
+   * Saves the shift data from the modal to the calendar.
+   */
   saveEntry() {
     const modal = document.getElementById('timeEntryModal');
     const dateStr = modal.dataset.date;
@@ -93,7 +123,9 @@ export const calendar = {
     this.closeModal();
   },
 
-  // New function to delete a shift entry.
+  /**
+   * Deletes the shift entry for the current modal date.
+   */
   deleteEntry() {
     const modal = document.getElementById('timeEntryModal');
     const dateStr = modal.dataset.date;
