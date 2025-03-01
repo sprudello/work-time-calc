@@ -86,26 +86,25 @@
 
     <!-- Time Entry Modal with Day Booster -->
     <div id="timeEntryModal" class="time-entry-modal">
-      <h3>
-        Add Work Time for <span id="modalDate"></span>
-      </h3>
-      <div class="input-group">
-        <label for="modalStartTime">Start Time:</label>
-        <input type="time" id="modalStartTime" value="19:00" required />
+        <h3>Add Work Time for <span id="modalDate"></span></h3>
+        <div class="input-group">
+          <label for="modalStartTime">Start Time:</label>
+          <input type="time" id="modalStartTime" value="19:00" required />
+        </div>
+        <div class="input-group">
+          <label for="modalEndTime">End Time:</label>
+          <input type="time" id="modalEndTime" value="05:00" required />
+        </div>
+        <div class="input-group">
+          <label for="modalDayBoosterPercent">Day Booster (%):</label>
+          <input type="number" id="modalDayBoosterPercent" step="0.1" value="0" />
+        </div>
+        <button onclick="calendar.saveEntry()">Save</button>
+        <button onclick="calendar.deleteEntry()">Delete Shift</button>
+        <button onclick="calendar.closeModal()">Cancel</button>
       </div>
-      <div class="input-group">
-        <label for="modalEndTime">End Time:</label>
-        <input type="time" id="modalEndTime" value="05:00" required />
-      </div>
-      <!-- Day Booster: Applies only until midnight of that day -->
-      <div class="input-group">
-        <label for="modalDayBoosterPercent">Day Booster (%):</label>
-        <input type="number" id="modalDayBoosterPercent" step="0.1" value="0" />
-      </div>
-      <button onclick="calendar.saveEntry()">Save</button>
-      <button onclick="calendar.closeModal()">Cancel</button>
-    </div>
-
+      
+      
     <!-- Hidden file input for standard shift CSV import -->
     <input type="file" id="csvFileInput" style="display: none;" accept=".csv" />
     <!-- Hidden file input for Dienstplan CSV import -->
